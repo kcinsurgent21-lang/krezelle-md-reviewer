@@ -1,0 +1,95 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { box-sizing: border-box; }
+  html { -webkit-tap-highlight-color: transparent; }
+  body {
+    /* San Francisco on Apple, Segoe UI on Windows — via font-sans (system-ui) */
+    @apply font-sans bg-slate-50 text-slate-800 antialiased;
+    overscroll-behavior: none;
+  }
+}
+
+@layer components {
+  /* ── Flip card ─────────────────────────────────────────────────────────── */
+  .flip-card-container { perspective: 1200px; }
+  .flip-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .flip-card-inner.flipped { transform: rotateY(180deg); }
+  .flip-card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+  .flip-card-back { transform: rotateY(180deg); }
+
+  /* ── Typography — Merriweather for reading-heavy content ──────────────── */
+
+  /* Question stem: the full sentence the student must read and reason through */
+  .question-text {
+    @apply font-serif text-slate-800 leading-relaxed;
+    font-size: 0.9375rem;   /* 15px — slightly larger than body for clarity */
+    font-weight: 400;
+    letter-spacing: 0.01em;
+  }
+
+  /* Rationale body paragraphs: longer explanatory prose */
+  .rationale-text {
+    @apply font-serif text-slate-700 leading-relaxed;
+    font-size: 0.875rem;    /* 14px */
+    font-weight: 300;       /* Merriweather Light for comfortable long-form reading */
+  }
+
+  /* Per-choice rationale lines (slightly smaller, italic emphasis) */
+  .rationale-choice {
+    @apply font-serif text-slate-500 leading-relaxed;
+    font-size: 0.8125rem;   /* 13px */
+    font-weight: 300;
+    font-style: italic;
+  }
+
+  /* Flashcard content — both front (term) and back (definition) */
+  .flashcard-text {
+    @apply font-serif text-slate-800 leading-relaxed text-center;
+    font-size: 1rem;
+    font-weight: 400;
+  }
+  .flashcard-text-back {
+    @apply font-serif text-slate-700 leading-relaxed text-center;
+    font-size: 0.9375rem;
+    font-weight: 300;
+  }
+
+  /* ── Layout helpers ────────────────────────────────────────────────────── */
+  .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+
+  /* ── Scrollbar ─────────────────────────────────────────────────────────── */
+  .scrollbar-thin::-webkit-scrollbar { width: 4px; }
+  .scrollbar-thin::-webkit-scrollbar-track { @apply bg-transparent; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { @apply bg-slate-300 rounded-full; }
+
+  /* ── Option button states ──────────────────────────────────────────────── */
+  .option-btn     { @apply relative w-full text-left px-4 py-3 rounded-xl border-2 transition-all duration-150 font-medium text-sm; }
+  .option-default { @apply border-slate-200 bg-white text-slate-700 hover:border-navy-300 hover:bg-navy-50 active:scale-[0.98]; }
+  .option-correct { @apply border-teal-500 bg-teal-50 text-teal-800; }
+  .option-wrong   { @apply border-red-400  bg-red-50  text-red-800; }
+  .option-reveal  { @apply border-teal-400 bg-teal-50 text-teal-700; }
+
+  /* ── Card base ─────────────────────────────────────────────────────────── */
+  .card { @apply bg-white rounded-2xl shadow-sm border border-slate-100 p-5; }
+
+  /* ── Pill badge ────────────────────────────────────────────────────────── */
+  .subject-badge { @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold; }
+}
+
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+}
