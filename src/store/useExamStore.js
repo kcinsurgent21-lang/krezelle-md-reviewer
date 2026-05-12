@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 
+// Fisher-Yates shuffle for arrays
 const shuffle = (arr) => {
   const a = [...arr]
   for (let i = a.length - 1; i > 0; i--) {
@@ -7,6 +8,36 @@ const shuffle = (arr) => {
     [a[i], a[j]] = [a[j], a[i]]
   }
   return a
+}
+
+// Shuffle A/B/C/D choices while keeping correct answer + rationale linked
+const shuffleQuestionChoices = (question) => {
+  const letters = Object.keys(question.choices)           // ['A','B','C','D']
+  const correctText = question.choices[question.correctAnswer]
+
+  // Pair each choice text with its per-choice rationale so they travel together
+  const pairs = letters.map((letter) => ({
+    text:      question.choices[letter],
+    rationale: question.rationale?.[letter],
+  }))
+
+  // Fisher-Yates in-place on pairs
+  for (let i = pairs.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pairs[i], pairs[j]] = [pairs[j], pairs[i]]
+  }
+
+  const newChoices   = {}
+  const newRationale = { general: question.rationale?.general }
+  let   newCorrect   = question.correctAnswer
+
+  letters.forEach((letter, i) => {
+    newChoices[letter] = pairs[i].text
+    if (pairs[i].rationale != null) newRationale[letter] = pairs[i].rationale
+    if (pairs[i].text === correctText) newCorrect = letter   // track new position
+  })
+
+  return { ...question, choices: newChoices, correctAnswer: newCorrect, rationale: newRationale }
 }
 
 const useExamStore = create((set, get) => ({
@@ -36,10 +67,14 @@ const useExamStore = create((set, get) => ({
   startExam: (questionPool) => {
     const { config } = get()
     const shuffled = shuffle(questionPool)
-    const limited = shuffled.slice(0, config.questionLimit)
+    const limited  = shuffled.slice(0, config.questionLimit)
+    // Shuffle A/B/C/D order per question if enabled
+    const questions = config.shuffleChoices
+      ? limited.map(shuffleQuestionChoices)
+      : limited
     set({
       status: 'active',
-      questions: limited,
+      questions,
       currentIndex: 0,
       answers: {},
       revealed: {},
@@ -54,16 +89,14 @@ const useExamStore = create((set, get) => ({
     if (!question || answers[questionId]) return // prevent re-answer
 
     const correct = selected === question.correctAnswer
-    const wasRevealed = !correct // reveal rationale immediately on wrong answer
 
     set((s) => ({
       answers: {
         ...s.answers,
         [questionId]: { selected, correct, timeMs: Date.now() - s.startTime },
       },
-      revealed: wasRevealed
-        ? { ...s.revealed, [questionId]: true }
-        : s.revealed,
+      // Always reveal rationale immediately on any answer (correct or wrong)
+      revealed: { ...s.revealed, [questionId]: true },
     }))
   },
 

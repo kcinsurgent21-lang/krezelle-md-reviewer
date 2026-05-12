@@ -10,9 +10,9 @@ export default function ExamEngine() {
   useExamTimer()
 
   const {
-    status, questions, currentIndex, answers, revealed,
+    status, questions, currentIndex, answers,
     config, timeRemaining,
-    submitAnswer, revealRationale, nextQuestion, prevQuestion, finishExam,
+    submitAnswer, nextQuestion, prevQuestion, finishExam,
   } = useExamStore()
 
   // Redirect if no exam active
@@ -25,7 +25,6 @@ export default function ExamEngine() {
 
   const question = questions[currentIndex]
   const answer = answers[question.id]
-  const isRevealed = revealed[question.id]
   const answeredCount = Object.keys(answers).length
   const progress = (answeredCount / questions.length) * 100
   const isLast = currentIndex === questions.length - 1
@@ -75,9 +74,7 @@ export default function ExamEngine() {
           questionNumber={currentIndex + 1}
           total={questions.length}
           answer={answer}
-          revealed={isRevealed}
           onAnswer={submitAnswer}
-          onReveal={revealRationale}
         />
       </div>
 
